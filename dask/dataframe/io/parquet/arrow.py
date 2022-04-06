@@ -1496,7 +1496,7 @@ class ArrowDatasetEngine(Engine):
                 ds = pa_ds.dataset(
                     path_or_frag,
                     filesystem=fs,
-                    format="parquet",
+                    format=kwargs.get("format", "parquet"),
                     partitioning=partitioning["obj"].discover(
                         *partitioning.get("args", []),
                         **partitioning.get("kwargs", {}),
