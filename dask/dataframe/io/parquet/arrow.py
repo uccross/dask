@@ -1,3 +1,4 @@
+import os
 import json
 from collections import defaultdict
 from datetime import datetime
@@ -1493,10 +1494,18 @@ class ArrowDatasetEngine(Engine):
                 # We are filtering with "pyarrow-dataset".
                 # Need to convert the path and row-group IDs
                 # to a single "fragment" to read
+                os.environ["CEPH_CONFIG_PATH"] = "/opt/ceph/ceph.conf"
+                os.environ["CEPH_DATA_POOL"] = "cephfs-data0"
+                
+                if kwargs.get("format", "parquet") == "skyhook":
+                    format_ = pa_ds.SkyhookFileFormat("parquet", os.environ["CEPH_CONFIG_PATH"], os.environ["CEPH_DATA_POOL"])
+                else:
+                    format_ = pa_ds.ParquetFileFormat() 
+
                 ds = pa_ds.dataset(
                     path_or_frag,
                     filesystem=fs,
-                    format=kwargs.get("format", "parquet"),
+                    format=format_,
                     partitioning=partitioning["obj"].discover(
                         *partitioning.get("args", []),
                         **partitioning.get("kwargs", {}),
